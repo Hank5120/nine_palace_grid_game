@@ -27,22 +27,22 @@
       padding: 20px;
     }
 
-    /* 左右側圖片容器：上下放置兩張圖片；此處已設 16:9 比例 */
+    /* 左右側圖片容器：上下放置「2 張」直向照片 */
     .side-images {
       display: flex;
-      flex-direction: column;
+      flex-direction: column; /* 垂直排列 */
       align-items: center;
       gap: 20px; 
     }
     .side-images img {
-    width: 320px;            
-    aspect-ratio: 16 / 9;    
-    object-fit: cover;       
-    height: auto;           
-    max-width: none;         /* 關鍵：不超過容器寬度 */
-
-    border: 2px solid #ccc;
-    border-radius: 6px;
+      width: 200px;           /* 可自行調整想要的寬度 */
+      aspect-ratio: 9 / 16;   /* 設定縱向 9:16 */
+      object-fit: cover;      /* 裁切超出部分，保持不變形 */
+      height: auto;           
+      border: 2px solid #ccc;
+      border-radius: 6px;
+      max-width: none;
+      max-height: none;
     }
 
     /* 中間主容器：九宮格 + 抽卡紀錄並排 */
@@ -72,7 +72,7 @@
       margin-bottom: 20px;
     }
 
-    /* 格子 */
+    /* 單一格子 */
     .cell {
       width: 80px;
       height: 80px;
@@ -259,11 +259,11 @@
 <body>
 
   <div class="outer-wrapper">
-    <!-- 左側 2 張圖片 -->
+    <!-- 左側 2 張直向照片 -->
     <div class="side-images left">
-      <!-- 假設這兩張圖就在同資料夾，可自行換路徑 -->
-      <img src="S__43958372.jpg" alt="Left Image 1">
-      <img src="S__43958374.jpg" alt="Left Image 2">
+      <!-- 請自行替換成真實圖片檔案 -->
+      <img src="1.jpg" alt="Left Image 1">
+      <img src="2.jpg" alt="Left Image 2">
     </div>
 
     <!-- 中間：九宮格 + 抽卡紀錄 -->
@@ -281,10 +281,11 @@
       </div>
     </div>
 
-    <!-- 右側 2 張圖片 -->
+    <!-- 右側 2 張直向照片 -->
     <div class="side-images right">
-      <img src="S__43958375.jpg" alt="Right Image 1">
-      <img src="S__43958376.jpg" alt="Right Image 2">
+      <!-- 請自行替換成真實圖片檔案 -->
+      <img src="3.jpg" alt="Right Image 1">
+      <img src="4.jpg" alt="Right Image 2">
     </div>
   </div>
 
@@ -302,7 +303,7 @@
 
   <script>
     /************************************************
-     * 1. 九宮格資料與連線邏輯
+     * 1. 九宮格資料與連線邏輯 (其餘程式碼不變)
      ************************************************/
     // 格子數字顯示 (1~9)
     const initialValues = [1,2,3,4,5,6,7,8,9];
@@ -319,21 +320,18 @@
       "這是格子9的自訂內容……"
     ];
 
-    // 紀錄哪些翻開/哪些是手動翻/哪些線失格
     let revealed = [false,false,false,false,false,false,false,false,false];
     let manuallyFlipped = [false,false,false,false,false,false,false,false,false];
     let disqualifiedLines = [false,false,false,false,false,false,false,false];
-    let claimedLines = 0;   // 已觸發抽卡的連線數
-    let gameStarted = false; // 第一次按「抽格子」後 = true
+    let claimedLines = 0;   
+    let gameStarted = false;
 
-    // 連線組合
     const winningLines = [
       [0,1,2],[3,4,5],[6,7,8],
       [0,3,6],[1,4,7],[2,5,8],
       [0,4,8],[2,4,6],
     ];
 
-    // DOM 參考
     const gridContainer = document.getElementById('grid');
     const revealedContent = document.getElementById('revealedContent');
     const drawButton = document.getElementById('drawButton');
@@ -346,18 +344,18 @@
 
       const front = document.createElement('div');
       front.classList.add('front');
-      front.textContent = val;   // 正面顯示 1,2,3...
+      front.textContent = val;
 
       const back = document.createElement('div');
       back.classList.add('back');
-      back.textContent = `格子${val}`; // 背面
+      back.textContent = `格子${val}`;
 
       cell.appendChild(front);
       cell.appendChild(back);
       cell.setAttribute('data-index', index);
       gridContainer.appendChild(cell);
 
-      // 抽格子前手動翻 => 不檢查連線
+      // 在「抽格子」前可手動翻
       cell.addEventListener('click', () => {
         if (!gameStarted && !revealed[index]) {
           revealOneCell(index, false);
@@ -367,56 +365,41 @@
       });
     });
 
-    // (2) 檢查失格線
     function checkDisqualifyLine(flippedIdx) {
       for (let l=0; l<winningLines.length; l++) {
         if (disqualifiedLines[l]) continue;
         const [a,b,c] = winningLines[l];
         if ([a,b,c].includes(flippedIdx)) {
-          // 若 a,b,c 都 (manuallyFlipped + revealed) => 失格
-          if (manuallyFlipped[a] && manuallyFlipped[b] && manuallyFlipped[c] &&
-              revealed[a] && revealed[b] && revealed[c]) {
+          if (manuallyFlipped[a] && manuallyFlipped[b] && manuallyFlipped[c]
+              && revealed[a] && revealed[b] && revealed[c]) {
             disqualifiedLines[l] = true;
           }
         }
       }
     }
 
-    // 按鈕「抽格子」 => 隨機 4.0~6.0 秒特效 + 翻一格
     drawButton.addEventListener('click', async () => {
-    gameStarted = true;
+      gameStarted = true;
+      // 顯示提示
+      revealedContent.textContent = "抽取獎勵中.......";
 
-    // 1. 先顯示「抽取獎勵中...」
-    revealedContent.textContent = "抽取獎勵中.......";
-
-    // 2. 執行隨機時間(4~6秒)的特效
-    await runEffectRandomTime();
-
-    // 3. 特效結束後翻開一格，並檢查連線
-    revealRandomCell();
+      await runEffectRandomTime();
+      revealRandomCell(); 
     });
 
-
-    // (1) 特效輪播：4.0 ~ 6.0 秒
     async function runEffectRandomTime() {
       const randomSec = parseFloat((Math.random() * 2 + 4).toFixed(1));
       const totalTime = randomSec * 1000;
-      const perCellTime = 200; // 每格特效 0.2秒
+      const perCellTime = 200;
 
       const start = Date.now();
       const cells = document.querySelectorAll('.cell');
 
       while (Date.now() - start < totalTime) {
         const unrevealedIndices = getUnrevealedIndices();
-        if (unrevealedIndices.length === 0) {
-          // 全翻開 => 直接跳出
-          break;
-        }
-        // 依序對每個未翻開格子播 0.2秒
+        if (unrevealedIndices.length === 0) break;
         for (let i=0; i<unrevealedIndices.length; i++) {
-          if (Date.now() - start >= totalTime) {
-            break;
-          }
+          if (Date.now() - start >= totalTime) break;
           const idx = unrevealedIndices[i];
           cells[idx].classList.add('highlight-effect');
           await sleep(perCellTime);
@@ -431,7 +414,6 @@
         .filter(x => x !== -1);
     }
 
-    // 隨機翻開一格
     function revealRandomCell() {
       const unrevealed = getUnrevealedIndices();
       if (unrevealed.length === 0) {
@@ -442,14 +424,11 @@
       revealOneCell(unrevealed[rand], true);
     }
 
-    // 統一翻格
     function revealOneCell(index, triggeredByButton) {
       revealed[index] = true;
       const cells = document.querySelectorAll('.cell');
       cells[index].classList.add('flip');
 
-      // 關鍵：下方顯示「格子1: 自訂內容」
-      // initialValues[index] = 1~9; cellDescriptions[index] = 對應敘述
       revealedContent.textContent = `格子${initialValues[index]}: ${cellDescriptions[index]}`;
 
       if (triggeredByButton) {
@@ -457,13 +436,12 @@
       }
     }
 
-    // 檢查連線 (排除失格線)
     function checkWinningLines() {
       const totalNow = countTotalLines();
       const newLines = totalNow - claimedLines;
       if (newLines > 0) {
         claimedLines = totalNow;
-        showCardGame(newLines); // 進入抽卡遊戲
+        showCardGame(newLines);
       }
     }
     function countTotalLines() {
@@ -479,7 +457,7 @@
     }
 
     /**********************************************
-     * [B] 抽卡小遊戲 (洗牌、翻牌、紀錄獎勵)
+     * [B] 抽卡小遊戲
      **********************************************/
     const overlay = document.getElementById('overlay');
     const closeCardGame = document.getElementById('closeCardGame');
@@ -488,7 +466,6 @@
     const shuffleBtn = document.getElementById('shuffleBtn');
     const drawAgainBtn = document.getElementById('drawAgainBtn');
 
-    // 十張獎勵卡
     const cardsData = [
       "金幣 x 10",
       "金幣 x 50",
@@ -531,11 +508,9 @@
       isCardFlipped = false;
       shuffleBtn.disabled = true;
 
-      // 隨機抓 4 張 + 1 張 PASS
       const four = getRandomSubset(cardsData, 4);
       currentSubset = [...four, passCard];
 
-      // 先正面展示
       displayCards(true);
       updateCardInfo();
       shuffleBtn.disabled = false;
@@ -578,10 +553,8 @@
         cardsContainer.appendChild(card);
 
         if (faceUp) {
-          // 正面展示 => 直接翻面顯示獎勵
           cardInner.classList.add('flipped');
         } else {
-          // 蓋住 => 玩家可點擊翻
           cardInner.addEventListener('click', () => {
             if (!isCardFlipped) {
               isCardFlipped = true;
