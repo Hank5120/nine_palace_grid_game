@@ -29,21 +29,34 @@
 
     /* 左右側圖片容器：上下放置「2 張」直向照片 */
     .side-images {
-      display: flex;
-      flex-direction: column; /* 垂直排列 */
-      align-items: center;
-      gap: 20px; 
-    }
+    display: flex;
+    flex-direction: column; 
+    gap: 20px;
+  
+    /* 假設想讓容器最高 600px，或視需要設定 */
+    max-height: 600px;
+  
+    /* 內容若超出容器，就出現捲軸(上下滑動) */
+    overflow-y: auto; 
+  }
+
     .side-images img {
-      width: 200px;           /* 可自行調整想要的寬度 */
-      aspect-ratio: 9 / 16;   /* 設定縱向 9:16 */
-      object-fit: cover;      /* 裁切超出部分，保持不變形 */
-      height: auto;           
+      /* 若想保持一定寬度，可設定 width；或者改成 100% 依容器調整 */
+      width: 200px;
+      
+      /* 移除固定 aspect-ratio 或改成 auto，避免強制裁切 */
+      /* aspect-ratio: auto; */
+    
+      /* 讓圖片完整顯示，不裁切 */
+      object-fit: contain;
+    
+      /* 照原尺寸或容器大小自動縮放 */
+      height: auto;
+    
       border: 2px solid #ccc;
       border-radius: 6px;
-      max-width: none;
-      max-height: none;
     }
+
 
     /* 中間主容器：九宮格 + 抽卡紀錄並排 */
     .main-container {
