@@ -35,12 +35,14 @@
       gap: 20px; 
     }
     .side-images img {
-      width: 320px;            
-      aspect-ratio: 16 / 9;
-      object-fit: cover; 
-      height: auto;
-      border: 2px solid #ccc;
-      border-radius: 6px;
+    width: 320px;            
+    aspect-ratio: 16 / 9;    
+    object-fit: cover;       
+    height: auto;           
+    max-width: 100%;         /* 關鍵：不超過容器寬度 */
+
+    border: 2px solid #ccc;
+    border-radius: 6px;
     }
 
     /* 中間主容器：九宮格 + 抽卡紀錄並排 */
